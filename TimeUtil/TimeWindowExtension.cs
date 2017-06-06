@@ -132,15 +132,21 @@ namespace TimeUtil
                 }
             }
 
-            var reference = Min(iterators.Select(i => i.Current.From));
-
             while (true)
             {
-                var intersect = new TimeWindow
+                var intersect = iterators[0].Current;
+
+                foreach (var iter in iterators.Skip(1))
                 {
-                    From = DateTimeOffset.MinValue,
-                    To = DateTimeOffset.MaxValue
-                };
+                    intersect = intersect?.Intersect(iter.Current);
+                }
+
+                if (intersect != null)
+                {
+                    yield return intersect;
+                }
+
+                var reference = Min(iterators.Select(i => i.Current.To));
 
                 foreach (var iter in iterators)
                 {
@@ -151,15 +157,6 @@ namespace TimeUtil
                             yield break;
                         }
                     }
-
-                    intersect = intersect?.Intersect(iter.Current);
-                }
-
-                reference = Min(iterators.Select(i => i.Current.To));
-
-                if (intersect != null)
-                {
-                    yield return intersect;
                 }
             }
         }
