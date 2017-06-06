@@ -125,5 +125,56 @@ namespace Test
                 Assert.AreEqual(tw[i].To.Subtract(TimeSpan.FromMinutes(30)), result[i].To);
             }
         }
+
+        [TestMethod]
+        public void TestIntersect()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = Tw.Offset(TimeSpan.FromHours(6)).ToList();
+            var result = new[] { tw1, tw2 }.Intersect().ToList();
+
+            Assert.AreEqual(3, result.Count);
+            for (var i = 0; i < result.Count; ++i)
+            {
+                Assert.AreEqual(tw1[i].From.Add(TimeSpan.FromHours(6)), result[i].From);
+                Assert.AreEqual(tw1[i].To, result[i].To);
+            }
+        }
+
+        [TestMethod]
+        public void TestIntersect2()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = tw1.Select(i => new TimeWindow
+            {
+                From = new DateTimeOffset(i.From.Year + 1, i.From.Month, i.From.Day, i.From.Hour, i.From.Minute, i.From.Second, TimeSpan.Zero),
+                To = new DateTimeOffset(i.To.Year + 1, i.To.Month, i.To.Day, i.To.Hour, i.To.Minute, i.To.Second, TimeSpan.Zero)
+            }).ToList();
+
+            var result = new[] { tw1, tw2 }.Intersect().ToList();
+
+            Assert.AreEqual(2, result.Count);
+            for (var i = 0; i < result.Count; ++i)
+            {
+                Assert.AreEqual(tw1[i + 1].From, result[i].From);
+                Assert.AreEqual(tw1[i + 1].To, result[i].To);
+            }
+        }
+
+        [TestMethod]
+        public void TestIntersect3()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = new[] { TimeWindow.Always }.ToList();
+
+            var result = new[] { tw1, tw2 }.Intersect().ToList();
+
+            Assert.AreEqual(3, result.Count);
+            for (var i = 0; i < result.Count; ++i)
+            {
+                Assert.AreEqual(tw1[i].From, result[i].From);
+                Assert.AreEqual(tw1[i].To, result[i].To);
+            }
+        }
     }
 }

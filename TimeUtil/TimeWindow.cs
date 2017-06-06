@@ -24,6 +24,12 @@ namespace TimeUtil
 
     public class TimeWindow
     {
+        public static TimeWindow Always => new TimeWindow
+        {
+            From = DateTimeOffset.MinValue,
+            To = DateTimeOffset.MaxValue
+        };
+
         public DateTimeOffset From { get; set; }
 
         public DateTimeOffset To { get; set; }
@@ -35,6 +41,11 @@ namespace TimeUtil
                 From = this.From == DateTimeOffset.MinValue ? DateTimeOffset.MinValue : this.From - extend,
                 To = this.To == DateTimeOffset.MaxValue ? DateTimeOffset.MaxValue : this.To + extend
             });
+        }
+
+        public bool Contains(DateTimeOffset dto)
+        {
+            return dto >= this.From && dto < this.To;
         }
 
         public TimeWindow Intersect(TimeWindow other)

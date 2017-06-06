@@ -100,9 +100,29 @@ namespace TimeUtil
             }
         }
 
+        public static DateTimeOffset Min(this IEnumerable<DateTimeOffset> input)
+        {
+            DateTimeOffset min = DateTimeOffset.MaxValue;
+
+            foreach (var value in input)
+            {
+                if (value < min)
+                {
+                    min = value;
+                }
+            }
+
+            return min;
+        }
+
         public static IEnumerable<TimeWindow> Intersect(this IEnumerable<IEnumerable<TimeWindow>> input)
         {
             var iterators = input.Select(i => i.GetEnumerator()).ToList();
+
+            if (iterators.Count == 0)
+            {
+                yield break;
+            }
 
             foreach (var iter in iterators)
             {
@@ -112,11 +132,11 @@ namespace TimeUtil
                 }
             }
 
+            var reference = Min(iterators.Select(i => i.Current.From));
+
             while (true)
             {
-                IEnumerator<TimeWindow> minimumFrom = null;
-                IEnumerator<TimeWindow> minimumTo = null;
-                TimeWindow intersect = new TimeWindow
+                var intersect = new TimeWindow
                 {
                     From = DateTimeOffset.MinValue,
                     To = DateTimeOffset.MaxValue
@@ -124,42 +144,22 @@ namespace TimeUtil
 
                 foreach (var iter in iterators)
                 {
-                    var value = iter.Current;
-
-                    if (minimumFrom == null || value.From < minimumFrom.Current.From)
+                    while (reference > iter.Current.From && !iter.Current.Contains(reference))
                     {
-                        minimumFrom = iter;
+                        if (!iter.MoveNext())
+                        {
+                            yield break;
+                        }
                     }
 
-                    if (minimumTo == null || value.To < minimumTo.Current.To)
-                    {
-                        minimumTo = iter;
-                    }
-
-                    if (intersect != null)
-                    {
-                        intersect = iter.Current.Intersect(intersect);
-                    }
+                    intersect = intersect?.Intersect(iter.Current);
                 }
 
-                if (intersect == null)
+                reference = Min(iterators.Select(i => i.Current.To));
+
+                if (intersect != null)
                 {
-                    // Advance minimum from
-                    if (!minimumFrom.MoveNext())
-                    {
-                        yield break;
-                    }
-                }
-                else
-                {
-                    // Advance to minimum to
                     yield return intersect;
-
-                    // ReSharper disable once PossibleNullReferenceException
-                    if (!minimumTo.MoveNext())
-                    {
-                        yield break;
-                    }
                 }
             }
         }
