@@ -176,5 +176,67 @@ namespace Test
                 Assert.AreEqual(tw1[i].To, result[i].To);
             }
         }
+
+        [TestMethod]
+        public void TestIntersect4()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = Tw.ToList();
+
+            var result = new[] { tw1, tw2 }.Intersect().ToList();
+
+            Assert.AreEqual(3, result.Count);
+            for (var i = 0; i < result.Count; ++i)
+            {
+                Assert.AreEqual(tw1[i].From, result[i].From);
+                Assert.AreEqual(tw1[i].To, result[i].To);
+            }
+        }
+
+        [TestMethod]
+        public void TestIntersect5()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = Tw.Negate().ToList();
+
+            var result = new[] { tw1, tw2 }.Intersect().ToList();
+
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void TestUnion()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = Tw.Offset(TimeSpan.FromDays(3)).ToList();
+
+            var result = new[] { tw1, tw2 }.Union().ToList();
+
+            Assert.AreEqual(6, result.Count);
+            for (var i = 0; i < result.Count; i += 2)
+            {
+                Assert.AreEqual(tw1[i / 2].From, result[i].From);
+                Assert.AreEqual(tw1[i / 2].To, result[i].To);
+
+                Assert.AreEqual(tw2[i / 2].From, result[i + 1].From);
+                Assert.AreEqual(tw2[i / 2].To, result[i + 1].To);
+            }
+        }
+
+        [TestMethod]
+        public void TestUnion2()
+        {
+            var tw1 = Tw.ToList();
+            var tw2 = Tw.Offset(TimeSpan.FromHours(6)).ToList();
+
+            var result = new[] { tw1, tw2 }.Union().ToList();
+
+            Assert.AreEqual(3, result.Count);
+            for (var i = 0; i < result.Count; ++i)
+            {
+                Assert.AreEqual(tw1[i].From, result[i].From);
+                Assert.AreEqual(tw2[i].To, result[i].To);
+            }
+        }
     }
 }

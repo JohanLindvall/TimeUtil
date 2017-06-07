@@ -24,8 +24,16 @@ namespace TimeUtil
     using System.Collections.Generic;
     using System.Linq;
 
+    /// <summary>
+    /// Defines extension methods for time windows.
+    /// </summary>
     public static class TimeWindowExtension
     {
+        /// <summary>
+        /// Negates the ipnput time windows.
+        /// </summary>
+        /// <param name="input">The time windows to negate.</param>
+        /// <returns>A negated copy of the input.</returns>
         public static IEnumerable<TimeWindow> Negate(this IEnumerable<TimeWindow> input)
         {
             DateTimeOffset previous = DateTimeOffset.MinValue;
@@ -54,6 +62,12 @@ namespace TimeUtil
             }
         }
 
+        /// <summary>
+        /// Extends the input at both ends with the given parameter.
+        /// </summary>
+        /// <param name="input">The input to extend.</param>
+        /// <param name="expand">A copy of the extended input.</param>
+        /// <returns></returns>
         public static IEnumerable<TimeWindow> Extend(this IEnumerable<TimeWindow> input, TimeSpan expand)
         {
             TimeWindow previous = null;
@@ -88,6 +102,12 @@ namespace TimeUtil
             }
         }
 
+        /// <summary>
+        /// Offsets the input with the given parameter.
+        /// </summary>
+        /// <param name="input">The input to offset..</param>
+        /// <param name="offset">The offset to apply to the input.</param>
+        /// <returns>An offset copy of the input.</returns>
         public static IEnumerable<TimeWindow> Offset(this IEnumerable<TimeWindow> input, TimeSpan offset)
         {
             foreach (var tw in input)
@@ -100,6 +120,11 @@ namespace TimeUtil
             }
         }
 
+        /// <summary>
+        /// Returns the minimum value of the input.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <returns>The minimum value.</returns>
         public static DateTimeOffset Min(this IEnumerable<DateTimeOffset> input)
         {
             DateTimeOffset min = DateTimeOffset.MaxValue;
@@ -115,6 +140,11 @@ namespace TimeUtil
             return min;
         }
 
+        /// <summary>
+        /// Returns an intersection of the input.
+        /// </summary>
+        /// <param name="input">The input to intersect.</param>
+        /// <returns>An interseciton of the input.</returns>
         public static IEnumerable<TimeWindow> Intersect(this IEnumerable<IEnumerable<TimeWindow>> input)
         {
             var iterators = input.Select(i => i.GetEnumerator()).ToList();
@@ -161,6 +191,11 @@ namespace TimeUtil
             }
         }
 
+        /// <summary>
+        /// Returns a union of the input.
+        /// </summary>
+        /// <param name="input">The input to form a union of.</param>
+        /// <returns>A union of the input.</returns>
         public static IEnumerable<TimeWindow> Union(this IEnumerable<IEnumerable<TimeWindow>> input)
         {
             return Negate(Intersect(input.Select(Negate)));
